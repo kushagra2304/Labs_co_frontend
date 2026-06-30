@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import api from "../api/axios";
 import { useAuth } from "../context/AuthContext";
 
@@ -65,7 +65,7 @@ const Login = () => {
         </button>
 
         <p style={styles.switchText}>
-          Don't have an account? <a href="/signup">Sign up</a>
+          Don't have an account? <Link to="/signup">Sign up</Link>
         </p>
       </form>
     </div>

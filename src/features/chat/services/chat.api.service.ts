@@ -14,7 +14,20 @@ const apiClient = axios.create({
   },
 });
 
+apiClient.interceptors.request.use((config) => {
+  const token = localStorage.getItem('token');
+  if (token) {
+    config.headers.Authorization = `Bearer ${token}`;
+  }
+  return config;
+});
+
 export const chatApiService = {
+  getChatUsers: async (): Promise<User[]> => {
+    const response = await apiClient.get<User[]>('/users');
+    return response.data;
+  },
+
   getEmployees: async (): Promise<User[]> => {
     const response = await apiClient.get<{ success: boolean; data: User[] }>('/employees');
     return response.data.data;

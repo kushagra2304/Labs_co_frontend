@@ -20,15 +20,18 @@ export const ChatSocketProvider: React.FC<{ children: React.ReactNode }> = ({ ch
   useEffect(() => {
     const socketUrl = import.meta.env.VITE_SOCKET_URL || 'http://localhost:5001';
 
+    const token = localStorage.getItem('token') || '';
     const params = new URLSearchParams(window.location.search);
-    const userId = params.get('userId') || '11111111-1111-1111-1111-111111111111';
+    const storedUser = localStorage.getItem("user");
+    const parsedUser = storedUser ? JSON.parse(storedUser) : null;
+    const userId = params.get('userId') || parsedUser?.id || '11111111-1111-1111-1111-111111111111';
 
     const newSocket = io(socketUrl, {
       transports: ['websocket', 'polling'],
       reconnectionAttempts: 5,
       reconnectionDelay: 1000,
-      query: { userId },
-      auth: { userId },
+      query: { userId, token },
+      auth: { userId, token },
     });
 
     newSocket.on('connect', () => {
