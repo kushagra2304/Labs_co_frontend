@@ -43,10 +43,15 @@ export const useConversation = (conversationId: string | null) => {
   }, [loading, hasMore, conversationId, page, loadMessages]);
 
   const handleNewMessage = useCallback(
-    (data: { message: Message; conversationId: string }) => {
+    (data: { message: Message; conversationId: string; tempId?: string }) => {
       if (data.conversationId === conversationId) {
         setMessages((prev) => {
           if (prev.some((m) => m.id === data.message.id)) return prev;
+          
+          if (data.tempId && prev.some((m) => m.id === data.tempId)) {
+            return prev.map((m) => (m.id === data.tempId ? data.message : m));
+          }
+          
           return [data.message, ...prev];
         });
 
@@ -75,7 +80,7 @@ export const useConversation = (conversationId: string | null) => {
     []
   );
 
-  useSocketEvent<{ message: Message; conversationId: string }>('new_message', handleNewMessage);
+  useSocketEvent<{ message: Message; conversationId: string; tempId?: string }>('new_message', handleNewMessage);
   useSocketEvent<{ messageId: string; userId: string }>('read_receipt', handleReadReceipt);
 
   const sendMessage = useCallback(
@@ -87,7 +92,12 @@ export const useConversation = (conversationId: string | null) => {
       const mockMsg: Message = {
         id: tempId,
         conversationId,
-        senderId: '11111111-1111-1111-1111-111111111111',
+        senderId: (() => {
+          const params = new URLSearchParams(window.location.search);
+          const storedUser = localStorage.getItem("user");
+          const parsedUser = storedUser ? JSON.parse(storedUser) : null;
+          return params.get('userId') || parsedUser?.id || '11111111-1111-1111-1111-111111111111';
+        })(),
         content: content || null,
         messageType: type,
         status: 'SENT',

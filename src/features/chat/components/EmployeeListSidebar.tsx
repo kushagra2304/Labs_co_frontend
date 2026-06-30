@@ -7,12 +7,17 @@ import { Search, Plus, Check } from 'lucide-react';
 interface EmployeeListSidebarProps {
   onSelectConversation: (conversation: Conversation) => void;
   activeConversationId: string | null;
+  activeUserId: string | null;
   onlineUsersMap: { [userId: string]: boolean };
+  unreadCounts: { [userId: string]: number };
 }
 
 export const EmployeeListSidebar: React.FC<EmployeeListSidebarProps> = ({
   onSelectConversation,
+  activeConversationId,
+  activeUserId,
   onlineUsersMap,
+  unreadCounts = {},
 }) => {
   const [users, setUsers] = useState<User[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
@@ -25,8 +30,11 @@ export const EmployeeListSidebar: React.FC<EmployeeListSidebarProps> = ({
     const fetchUsers = async () => {
       setLoading(true);
       try {
-        const list = await chatApiService.getEmployees();
-        const filtered = list.filter((u) => u.id !== '11111111-1111-1111-1111-111111111111');
+        const list = await chatApiService.getChatUsers();
+        const storedUser = localStorage.getItem("user");
+        const parsedUser = storedUser ? JSON.parse(storedUser) : null;
+        const currentUserId = parsedUser?.id || '';
+        const filtered = list.filter((u) => u.id !== currentUserId);
         setUsers(filtered);
       } catch (err) {
         console.error('Failed to load users:', err);
@@ -161,7 +169,8 @@ export const EmployeeListSidebar: React.FC<EmployeeListSidebarProps> = ({
               key={u.id}
               user={u}
               isOnline={!!onlineUsersMap[u.id] || u.isActive}
-              isActiveConversation={false}
+              isActiveConversation={u.id === activeUserId}
+              unreadCount={unreadCounts[u.id] || 0}
               onClick={() => handleSelectUser(u)}
             />
           ))
