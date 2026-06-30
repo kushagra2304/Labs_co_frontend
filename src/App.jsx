@@ -5,6 +5,7 @@ import Login from "./pages/Login";
 import Signup from "./pages/Signup";
 import AdminDashboard from "./pages/AdminDashboard";
 import EmployeeDashboard from "./pages/EmployeeDashboard";
+import { ChatContainer } from "./features/chat/components/ChatContainer";
 
 function App() {
   return (
@@ -28,6 +29,15 @@ function App() {
             element={
               <ProtectedRoute allowedRoles={["employee"]}>
                 <EmployeeDashboard />
+              </ProtectedRoute>
+            }
+          />
+
+          <Route
+            path="/chat"
+            element={
+              <ProtectedRoute allowedRoles={["admin", "employee"]}>
+                <ChatContainer />
               </ProtectedRoute>
             }
           />
