@@ -85,6 +85,9 @@ export const ConversationWindow: React.FC<ConversationWindowProps> = ({
       prev.map((msg) => {
         if (msg.id === messageId) {
           const currentReactions = msg.reactions || [];
+          if (currentReactions.some((r) => r.id === reaction.id || (r.userId === reaction.userId && r.emoji === reaction.emoji))) {
+            return msg;
+          }
           return { ...msg, reactions: [...currentReactions, reaction] };
         }
         return msg;
